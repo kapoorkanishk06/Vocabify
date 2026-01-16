@@ -47,7 +47,7 @@ const featureCards = [
 
 const Logo = () => (
   <div className="bg-primary text-primary-foreground font-bold text-2xl w-10 h-10 flex items-center justify-center rounded-lg font-headline">
-    LQ
+    V
   </div>
 );
 
@@ -57,7 +57,7 @@ export default function LandingPage() {
       <header className="px-4 lg:px-6 h-16 flex items-center bg-background/80 backdrop-blur-sm sticky top-0 z-50">
         <Link href="#" className="flex items-center justify-center gap-2">
           <Logo />
-          <span className="text-xl font-bold font-headline">LexiQ Quest</span>
+          <span className="text-xl font-bold font-headline">Vocabify</span>
         </Link>
         <nav className="ml-auto flex gap-4 sm:gap-6">
           <Link href="/dashboard">
@@ -76,7 +76,7 @@ export default function LandingPage() {
                     Unlock Your Language Genius
                   </h1>
                   <p className="max-w-[600px] text-foreground/80 md:text-xl">
-                    LexiQ Quest transforms language learning into an exciting
+                    Vocabify transforms language learning into an exciting
                     adventure. Master grammar, expand your vocabulary, and
                     perfect your writing through fun, interactive games.
                   </p>
@@ -137,7 +137,7 @@ export default function LandingPage() {
 
       <footer className="flex flex-col gap-2 sm:flex-row py-6 w-full shrink-0 items-center px-4 md:px-6 border-t">
         <p className="text-xs text-foreground/60">
-          &copy; {new Date().getFullYear()} LexiQ Quest. All rights reserved.
+          &copy; {new Date().getFullYear()} Vocabify. All rights reserved.
         </p>
       </footer>
     </div>

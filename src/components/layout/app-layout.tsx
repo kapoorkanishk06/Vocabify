@@ -45,7 +45,7 @@ const navItems = [
 
 const Logo = () => (
     <div className="bg-primary text-primary-foreground font-bold text-2xl w-10 h-10 flex items-center justify-center rounded-lg font-headline">
-      LQ
+      V
     </div>
   );
   
@@ -59,7 +59,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
         <SidebarHeader>
           <div className="flex items-center gap-2">
             <Logo />
-            <span className="text-lg font-bold font-headline text-sidebar-foreground">LexiQ Quest</span>
+            <span className="text-lg font-bold font-headline text-sidebar-foreground">Vocabify</span>
           </div>
         </SidebarHeader>
         <SidebarContent>
@@ -100,7 +100,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
         <header className="flex h-14 items-center gap-4 border-b bg-background/50 px-6 backdrop-blur-sm sticky top-0 z-40">
             <SidebarTrigger />
             <h1 className="text-lg font-semibold md:text-xl font-headline">
-                {navItems.find(item => pathname.startsWith(item.href))?.label || 'LexiQ Quest'}
+                {navItems.find(item => pathname.startsWith(item.href))?.label || 'Vocabify'}
             </h1>
         </header>
         <main className="flex-1 p-4 md:p-6">{children}</main>

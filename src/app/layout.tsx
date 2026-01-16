@@ -4,7 +4,7 @@ import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
 
 export const metadata: Metadata = {
-  title: 'LexiQ Quest',
+  title: 'Vocabify',
   description: 'Gamified learning for mastering language skills.',
 };
 
