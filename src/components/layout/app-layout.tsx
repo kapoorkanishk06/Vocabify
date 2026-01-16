@@ -31,6 +31,7 @@ import {
   Workflow,
   Zap,
 } from 'lucide-react';
+import { ThemeToggle } from './theme-toggle';
 
 const navItems = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -102,6 +103,9 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
             <h1 className="text-lg font-semibold md:text-xl font-headline">
                 {navItems.find(item => pathname.startsWith(item.href))?.label || 'Vocabify'}
             </h1>
+            <div className="ml-auto flex items-center gap-2">
+                <ThemeToggle />
+            </div>
         </header>
         <main className="flex-1 p-4 md:p-6">{children}</main>
       </SidebarInset>

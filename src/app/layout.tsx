@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { PT_Sans, Source_Code_Pro } from 'next/font/google';
 import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
+import { ThemeProvider } from '@/components/theme-provider';
 
 export const metadata: Metadata = {
   title: 'Vocabify',
@@ -31,8 +32,15 @@ export default function RootLayout({
       <body
         className={`${ptSans.variable} ${sourceCodePro.variable} font-body antialiased`}
       >
-        {children}
-        <Toaster />
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          {children}
+          <Toaster />
+        </ThemeProvider>
       </body>
     </html>
   );

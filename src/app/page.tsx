@@ -1,3 +1,5 @@
+'use client';
+
 import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
@@ -9,8 +11,8 @@ import {
   Search,
   SpellCheck,
   Workflow,
-  Zap,
 } from 'lucide-react';
+import { ThemeToggle } from '@/components/layout/theme-toggle';
 
 const featureCards = [
   {
@@ -59,7 +61,8 @@ export default function LandingPage() {
           <Logo />
           <span className="text-xl font-bold font-headline">Vocabify</span>
         </Link>
-        <nav className="ml-auto flex gap-4 sm:gap-6">
+        <nav className="ml-auto flex items-center gap-4 sm:gap-6">
+          <ThemeToggle />
           <Link href="/dashboard">
             <Button>Get Started</Button>
           </Link>
