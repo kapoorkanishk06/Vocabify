@@ -6,7 +6,7 @@ import { z } from 'zod';
 const formSchema = z.object({
   topic: z.string().min(2, { message: 'Topic must be at least 2 characters.' }),
   difficulty: z.enum(['easy', 'medium', 'hard']),
-  passageLength: z.string().transform(Number),
+  passageLength: z.coerce.number().min(50).max(500),
 });
 
 export type FormState = {
@@ -65,6 +65,6 @@ export async function createPassageAction(
     }
   } catch (error) {
     console.error(error);
-    return { message: 'An unexpected error occurred on the server.' };
+    return { message: error instanceof Error ? error.message : 'An unexpected error occurred on the server.' };
   }
 }

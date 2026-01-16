@@ -4,7 +4,7 @@ import { useFormState, useFormStatus } from 'react-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { useEffect, useState, useTransition } from 'react';
+import { useEffect } from 'react';
 import { createPassageAction, FormState } from '../actions';
 import { Button } from '@/components/ui/button';
 import {
@@ -24,7 +24,6 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import {
   Select,
   SelectContent,
@@ -57,7 +56,6 @@ function SubmitButton() {
 }
 
 export default function ErrorHuntClient() {
-  const [passageLength, setPassageLength] = useState(150);
   const { toast } = useToast();
 
   const form = useForm<FormValues>({
@@ -156,7 +154,7 @@ export default function ErrorHuntClient() {
                             min={50}
                             max={500}
                             step={10}
-                            defaultValue={[field.value]}
+                            value={[field.value]}
                             onValueChange={(vals) => field.onChange(vals[0])}
                         />
                       </FormControl>

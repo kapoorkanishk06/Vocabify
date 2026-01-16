@@ -10,9 +10,9 @@ type PassageDisplayProps = {
 export default function PassageDisplay({ passage }: PassageDisplayProps) {
   const [selectedIndices, setSelectedIndices] = useState<Set<number>>(new Set());
 
-  const wordsAndPunctuation = useMemo(() => {
-    // This regex splits the text into words and punctuation marks
-    return passage.match(/(\w+)|([^\s\w])/g) || [];
+  const tokens = useMemo(() => {
+    // This regex splits the text into words and non-word characters (including spaces and punctuation)
+    return passage.split(/(\W+)/).filter(Boolean);
   }, [passage]);
 
   const toggleSelection = (index: number) => {
@@ -29,24 +29,22 @@ export default function PassageDisplay({ passage }: PassageDisplayProps) {
 
   return (
     <div className="text-lg leading-relaxed p-4 rounded-md bg-secondary/30 border">
-      {wordsAndPunctuation.map((token, index) => {
-        const isWord = /\w/.test(token);
+      {tokens.map((token, index) => {
+        const isWord = /^\w+$/.test(token);
         const isSelected = selectedIndices.has(index);
 
         return (
-          <span key={index}>
-            <span
-              className={cn(
-                'transition-colors duration-200 rounded-md',
-                isWord && 'cursor-pointer px-0.5 py-0.5',
-                isSelected && 'bg-accent/70 text-accent-foreground',
-                !isSelected && isWord && 'hover:bg-primary/20'
-              )}
-              onClick={() => isWord && toggleSelection(index)}
-            >
-              {token}
-            </span>
-            {' '}
+          <span
+            key={index}
+            className={cn(
+              'transition-colors duration-200 rounded-md',
+              isWord && 'cursor-pointer px-0.5 py-0.5',
+              isSelected && 'bg-accent/70 text-accent-foreground',
+              !isSelected && isWord && 'hover:bg-primary/20'
+            )}
+            onClick={() => isWord && toggleSelection(index)}
+          >
+            {token}
           </span>
         );
       })}
