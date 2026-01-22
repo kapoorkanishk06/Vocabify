@@ -74,6 +74,11 @@ const errorHuntPassageFlow = ai.defineFlow(
   },
   async input => {
     const {output} = await errorHuntPassagePrompt(input);
-    return output!;
+    if (!output) {
+      throw new Error(
+        'The AI model returned an empty response. This could be due to a configuration issue or content safety filters.'
+      );
+    }
+    return output;
   }
 );
