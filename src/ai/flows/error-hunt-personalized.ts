@@ -60,7 +60,7 @@ const errorHuntPassagePrompt = ai.definePrompt({
   - {{{this}}}
   {{/each}}
 
-  Return the passage and suggest the type of errors that were added to the passage. Do not reveal the actual error locations.
+  Return the passage and a list of up to 3 error types from the user's weaknesses that you have included in the passage. Do not reveal the actual error locations.
 
   Make the errors subtle but noticeable.  Do not include an explanation. Only the passage and the suggested error array is required.
   `,
