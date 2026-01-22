@@ -65,6 +65,17 @@ export async function createPassageAction(
     }
   } catch (error) {
     console.error(error);
-    return { message: error instanceof Error ? error.message : 'An unexpected error occurred on the server.' };
+    let errorMessage = 'An unexpected error occurred on the server.';
+    if (error instanceof Error) {
+        // Check for specific API key-related error messages from the Google AI provider
+        if (error.message.includes('API key not valid')) {
+            errorMessage = 'The provided Gemini API key is not valid. Please check the key in your .env file.';
+        } else if (error.message.includes('API key not found')) {
+            errorMessage = 'The Gemini API key is missing. Please add your GEMINI_API_KEY to the .env file.';
+        } else {
+            errorMessage = error.message;
+        }
+    }
+    return { message: errorMessage };
   }
 }
