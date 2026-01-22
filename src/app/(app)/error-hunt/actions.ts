@@ -70,7 +70,7 @@ export async function createPassageAction(
         // Check for specific API key-related error messages from the Google AI provider
         if (error.message.includes('API key not valid')) {
             errorMessage = 'The provided Gemini API key is not valid. Please check the key in your .env file.';
-        } else if (error.message.includes('API key not found')) {
+        } else if (error.message.includes('GEMINI_API_KEY') || error.message.includes('FAILED_PRECONDITION')) {
             errorMessage = 'The Gemini API key is missing. Please add your GEMINI_API_KEY to the .env file.';
         } else {
             errorMessage = error.message;
