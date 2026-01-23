@@ -80,14 +80,6 @@ export default function ErrorHuntClient() {
       });
     }
   }, [state, toast]);
-
-  const onFormSubmit = (data: FormValues) => {
-    const formData = new FormData();
-    formData.append('topic', data.topic);
-    formData.append('difficulty', data.difficulty);
-    formData.append('passageLength', String(data.passageLength));
-    formAction(formData);
-  };
   
 
   return (
@@ -101,7 +93,7 @@ export default function ErrorHuntClient() {
             </CardDescription>
           </CardHeader>
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onFormSubmit)}>
+            <form action={formAction}>
               <CardContent className="space-y-6">
                 <FormField
                   control={form.control}
@@ -138,6 +130,7 @@ export default function ErrorHuntClient() {
                           <SelectItem value="hard">Hard</SelectItem>
                         </SelectContent>
                       </Select>
+                       <input type="hidden" name={field.name} value={field.value} />
                       <FormMessage />
                     </FormItem>
                   )}
@@ -158,6 +151,7 @@ export default function ErrorHuntClient() {
                             onValueChange={(vals) => field.onChange(vals[0])}
                         />
                       </FormControl>
+                      <input type="hidden" name={field.name} value={field.value} />
                       <FormMessage />
                     </FormItem>
                   )}
