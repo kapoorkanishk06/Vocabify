@@ -1,4 +1,4 @@
-# **App Name**: LexiQ Quest
+# **App Name**: Vocabify
 
 ## Core Features:
 
