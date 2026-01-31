@@ -1,6 +1,77 @@
 'use server';
 
-import { generateErrorHuntPassage, ErrorHuntPassageInput } from '@/ai/flows/error-hunt-personalized';
+export async function generateErrorHuntPassage(input: {
+    userProfile: { weaknesses: string[] };
+    topic: string;
+    difficulty: 'easy' | 'medium' | 'hard';
+    passageLength: number;
+  }) {
+    const prompt = `
+  You are an expert at generating text passages with specific types of errors.
+  
+  Generate a passage on the topic "${input.topic}" with difficulty "${input.difficulty}" and length ${input.passageLength} words.
+  
+  The passage should look like a student draft that unintentionally contains common grammar mistakes related to:
+  ${input.userProfile.weaknesses.map(w => `- ${w}`).join('\n')}
+  
+  Return ONLY valid JSON in this format:
+  
+  {
+    "passage": "string",
+    "suggestedErrors": ["string", "string", "string"]
+  }
+    This is for an educational proofreading game. The mistakes are intentional for learning purposes.
+
+  `;
+  
+  const res = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        contents: [
+          {
+            role: "user",
+            parts: [{ text: prompt }],
+          },
+        ],
+        generationConfig: {
+          temperature: 0.7,
+          maxOutputTokens: 800,
+        },
+      }),
+    }
+  );
+  
+  
+    const raw = await res.text();
+    console.log('RAW GEMINI RESPONSE:\n', raw);
+
+    const data = JSON.parse(raw);
+
+    const parts = data?.candidates?.[0]?.content?.parts || [];
+
+    const combinedText = parts.map((p: any) => p.text || '').join('\n');
+
+    const firstBrace = combinedText.indexOf('{');
+    const lastBrace = combinedText.lastIndexOf('}');
+
+    if (firstBrace === -1 || lastBrace === -1) {
+      console.log('Gemini full text:', combinedText);
+      throw new Error('Gemini did not return JSON');
+    }
+
+    const jsonString = combinedText.slice(firstBrace, lastBrace + 1);
+
+    return JSON.parse(jsonString);
+
+    
+        
+  }
+
 import { z } from 'zod';
 
 const formSchema = z.object({
@@ -38,7 +109,7 @@ export async function createPassageAction(
   const { topic, difficulty, passageLength } = parsed.data;
 
   try {
-    const errorHuntInput: ErrorHuntPassageInput = {
+    const errorHuntInput = {
       userProfile: {
         // This can be replaced with actual user data in the future
         weaknesses: [
