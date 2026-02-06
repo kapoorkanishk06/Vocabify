@@ -13,6 +13,8 @@ import {
   Workflow,
 } from 'lucide-react';
 import { ThemeToggle } from '@/components/layout/theme-toggle';
+import { Logo } from '@/components/layout/logo';
+import { getPlaceholderImage } from '@/lib/placeholder-images';
 
 const featureCards = [
   {
@@ -46,12 +48,6 @@ const featureCards = [
     description: 'Choose the right word based on sentence context, not just definitions.',
   },
 ];
-
-const Logo = () => (
-  <div className="bg-primary text-primary-foreground font-bold text-2xl w-10 h-10 flex items-center justify-center rounded-lg font-headline">
-    V
-  </div>
-);
 
 export default function LandingPage() {
   return (
@@ -91,8 +87,7 @@ export default function LandingPage() {
                 </div>
               </div>
               <Image
-                src="https://picsum.photos/seed/1/600/600"
-                data-ai-hint="brain puzzle"
+                src={getPlaceholderImage('brain puzzle')}
                 width="600"
                 height="600"
                 alt="Hero"

@@ -72,6 +72,7 @@ export default function ErrorHuntClient() {
   });
 
   useEffect(() => {
+    console.log('Received new state from server:', state);
     if (state.message && state.message !== 'Passage generated successfully!') {
       toast({
         variant: "destructive",
