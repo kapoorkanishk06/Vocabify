@@ -1,11 +1,9 @@
 'use client';
 
-import { useFormStatus } from 'react-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { useActionState, useEffect } from 'react';
-import { createPassageAction, FormState } from '../actions';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -45,18 +43,10 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
-function SubmitButton() {
-  const { pending } = useFormStatus();
-  return (
-    <Button type="submit" disabled={pending} className="w-full">
-      {pending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-      Generate Passage
-    </Button>
-  );
-}
-
 export default function ErrorHuntClient() {
   const { toast } = useToast();
+  const [passage, setPassage] = useState<string | null>(null);
+  const [suggestedErrors, setSuggestedErrors] = useState<string[] | null>(null);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -67,22 +57,39 @@ export default function ErrorHuntClient() {
     },
   });
 
-  const [state, formAction] = useActionState<FormState, FormData>(createPassageAction, {
-    message: '',
-  });
+  const { isSubmitting } = form.formState;
 
-  useEffect(() => {
-    console.log('Received new state from server:', state);
-    if (state.message && state.message !== 'Passage generated successfully!') {
+  async function onSubmit(values: FormValues) {
+    try {
+      const response = await fetch('/api/error-hunt', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(values),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.message || 'An unknown error occurred.');
+      }
+
+      setPassage(result.passage);
+      setSuggestedErrors(result.suggestedErrors);
+
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred.';
       toast({
         variant: "destructive",
         title: "Error",
-        description: state.message,
+        description: errorMessage,
       });
+      setPassage(null);
+      setSuggestedErrors(null);
     }
-  }, [state, toast]);
+  }
   
-
   return (
     <div className="grid gap-8 md:grid-cols-3">
       <div className="md:col-span-1">
@@ -94,7 +101,7 @@ export default function ErrorHuntClient() {
             </CardDescription>
           </CardHeader>
           <Form {...form}>
-            <form action={formAction}>
+            <form onSubmit={form.handleSubmit(onSubmit)}>
               <CardContent className="space-y-6">
                 <FormField
                   control={form.control}
@@ -131,7 +138,6 @@ export default function ErrorHuntClient() {
                           <SelectItem value="hard">Hard</SelectItem>
                         </SelectContent>
                       </Select>
-                       <input type="hidden" name={field.name} value={field.value} />
                       <FormMessage />
                     </FormItem>
                   )}
@@ -152,7 +158,6 @@ export default function ErrorHuntClient() {
                             onValueChange={(vals) => field.onChange(vals[0])}
                         />
                       </FormControl>
-                      <input type="hidden" name={field.name} value={field.value} />
                       <FormMessage />
                     </FormItem>
                   )}
@@ -160,7 +165,10 @@ export default function ErrorHuntClient() {
                 
               </CardContent>
               <CardFooter>
-                 <SubmitButton />
+                 <Button type="submit" disabled={isSubmitting} className="w-full">
+                  {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  Generate Passage
+                </Button>
               </CardFooter>
             </form>
           </Form>
@@ -177,19 +185,19 @@ export default function ErrorHuntClient() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            {state?.passage ? (
+            {passage ? (
               <div className="space-y-4">
-                {state.suggestedErrors && state.suggestedErrors.length > 0 && (
+                {suggestedErrors && suggestedErrors.length > 0 && (
                   <Alert>
                     <Lightbulb className="h-4 w-4" />
                     <AlertTitle>Hints</AlertTitle>
                     <AlertDescription>
                       Look out for these types of errors:{' '}
-                      {state.suggestedErrors.join(', ')}.
+                      {suggestedErrors.join(', ')}.
                     </AlertDescription>
                   </Alert>
                 )}
-                <PassageDisplay passage={state.passage} />
+                <PassageDisplay passage={passage} />
               </div>
             ) : (
               <div className="flex items-center justify-center h-64 text-muted-foreground rounded-lg border border-dashed">
@@ -197,7 +205,7 @@ export default function ErrorHuntClient() {
               </div>
             )}
           </CardContent>
-           {state.passage && (
+           {passage && (
             <CardFooter>
                 <Button className="w-full" onClick={() => toast({ title: "Feedback not implemented yet."})}>Check Answers</Button>
             </CardFooter>

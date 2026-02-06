@@ -1,6 +1,5 @@
-'use server';
-
 import { z } from 'zod';
+import { NextResponse } from 'next/server';
 
 const formSchema = z.object({
   topic: z.string().min(2, { message: 'Topic must be at least 2 characters.' }),
@@ -8,21 +7,11 @@ const formSchema = z.object({
   passageLength: z.coerce.number().min(50).max(500),
 });
 
-export type FormState = {
-  message: string;
-  passage?: string;
-  suggestedErrors?: string[];
-  fields?: Record<string, string>;
-  issues?: string[];
-};
-
 async function generateErrorHuntPassage(input: {
   topic: string;
   difficulty: 'easy' | 'medium' | 'hard';
   passageLength: number;
 }) {
-  // Note: The `weaknesses` are hardcoded here for simplicity.
-  // In a real application, this would likely come from the user's profile.
   const weaknesses = [
     'Subject-verb agreement',
     'Comma splices',
@@ -41,7 +30,7 @@ Return the passage and a list of the errors you included.
 `;
 
   const res = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${process.env.NEXT_PUBLIC_GEMINI_API_KEY}`,
     {
       method: 'POST',
       headers: {
@@ -55,12 +44,10 @@ Return the passage and a list of the errors you included.
           },
         ],
         generationConfig: {
-          // Instruct the API to return a JSON object
           responseMimeType: 'application/json',
           temperature: 0.7,
           maxOutputTokens: 800,
         },
-        // Define the JSON schema for the API to follow
         toolConfig: {
           functionCallingConfig: {
             mode: 'ANY',
@@ -105,62 +92,36 @@ Return the passage and a list of the errors you included.
   }
 
   const data = await res.json();
-
-  // Extract the function call arguments, which will be our JSON object
   const functionCall = data.candidates?.[0]?.content?.parts?.[0]?.functionCall;
   if (!functionCall || !functionCall.args) {
     console.error('Invalid response from Gemini API:', JSON.stringify(data, null, 2));
     throw new Error('Gemini did not return the expected data structure.');
   }
 
-  // The arguments are already a JSON object, no need for JSON.parse()
   return functionCall.args;
 }
 
-export async function createPassageAction(
-  prevState: FormState,
-  data: FormData
-): Promise<FormState> {
-  const formData = Object.fromEntries(data);
-  const parsed = formSchema.safeParse(formData);
+export async function POST(request: Request) {
+  const body = await request.json();
+  const parsed = formSchema.safeParse(body);
 
   if (!parsed.success) {
-    const issues = parsed.error.issues.map((issue) => issue.message);
-    return {
-      message: 'Invalid form data.',
-      issues,
-      fields: {
-        topic: data.get('topic')?.toString() ?? '',
-      },
-    };
+    return NextResponse.json({ message: 'Invalid form data.', issues: parsed.error.issues }, { status: 400 });
   }
 
   try {
     const result = await generateErrorHuntPassage(parsed.data);
-
     if (result && result.passage) {
-      return {
-        message: 'Passage generated successfully!',
-        passage: result.passage,
-        suggestedErrors: result.suggestedErrors,
-      };
+      return NextResponse.json(result, { status: 200 });
     } else {
-      return { message: 'Failed to generate passage. The result was empty.' };
+      return NextResponse.json({ message: 'Failed to generate passage. The result was empty.' }, { status: 500 });
     }
   } catch (error) {
     console.error(error);
     let errorMessage = 'An unexpected error occurred on the server.';
     if (error instanceof Error) {
-      if (error.message.includes('API key not valid')) {
-        errorMessage =
-          'The provided Gemini API key is not valid. Please check your .env.local file.';
-      } else if (error.message.includes('GEMINI_API_KEY')) {
-        errorMessage =
-          'The Gemini API key is missing. Please add GEMINI_API_KEY to your .env.local file.';
-      } else {
         errorMessage = error.message;
-      }
     }
-    return { message: errorMessage };
+    return NextResponse.json({ message: errorMessage }, { status: 500 });
   }
 }
